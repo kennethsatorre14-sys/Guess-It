@@ -1,0 +1,262 @@
+<html>
+<head>
+<title>Dice Game</title>
+<style>
+body {
+    background-color: #1a1a2e;
+    font-family: Arial;
+    text-align: center;
+    padding: 20px;
+}
+.game {
+    background-color: #0d0d0d;
+    border: 3px solid gold;
+    max-width: 350px;
+    margin: 50px auto;
+    padding: 20px;
+}
+h1 {
+    color: gold;
+}
+.dice {
+    font-size: 80px;
+    background-color: white;
+    width: 120px;
+    height: 120px;
+    margin: 20px auto;
+    line-height: 120px;
+    border: 2px solid gold;
+}
+.dice.rolling {
+    animation: spin 0.5s ease;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.numbers button {
+    width: 60px;
+    height: 60px;
+    margin: 5px;
+    font-size: 20px;
+    font-weight: bold;
+    background-color: #2d2d2d;
+    color: gold;
+    border: 2px solid gold;
+    cursor: pointer;
+}
+.numbers button.picked {
+    background-color: red;
+    color: white;
+}
+.btn {
+    padding: 10px 20px;
+    margin: 10px 5px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    border: 2px solid gold;
+    cursor: pointer;
+}
+.roll-btn {
+    background-color: green;
+}
+.reset-btn {
+    background-color: darkred;
+}
+.message {
+    color: white;
+    padding: 10px;
+    margin: 10px 0;
+    min-height: 20px;
+}
+.win {
+    background-color: green;
+    color: gold;
+}
+.lose {
+    background-color: darkred;
+}
+.stats {
+    margin-top: 20px;
+}
+.stat-box {
+    display: inline-block;
+    background-color: #2d2d2d;
+    border: 1px solid gold;
+    padding: 10px;
+    margin: 5px;
+    min-width: 80px;
+}
+.stat-label {
+    color: gold;
+    font-size: 12px;
+}
+.stat-num {
+    color: gold;
+    font-size: 20px;
+    font-weight: bold;
+}
+.about {
+    margin-bottom: 20px;
+}
+.about-btn {
+    background-color: #2d2d2d;
+    color: gold;
+    border: 2px solid gold;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: bold;
+}
+.about-btn:hover {
+    background-color: #3d3d3d;
+}
+.about-content {
+    display: none;
+    background-color: #2d2d2d;
+    border: 2px solid gold;
+    margin-top: 10px;
+    padding: 15px;
+    border-radius: 5px;
+}
+.about-content.show {
+    display: block;
+}
+.about-content h3 {
+    color: gold;
+    margin-top: 0;
+}
+.about-content p {
+    color: white;
+    font-size: 14px;
+    line-height: 1.5;
+}
+.about-content ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+.about-content li {
+    margin: 8px 0;
+}
+</style>
+</head>
+<body>
+<div class="game">
+    <h1>Dice Game</h1>
+    
+    <div class="about">
+        <button class="about-btn" onclick="toggleAbout()">ℹ️ About This Game</button>
+        <div class="about-content" id="aboutContent">
+            <h3>How to Play</h3>
+            <p>This is a dice guessing game where you try to predict the outcome of a dice roll!</p>
+            <ul style="text-align: left; color: white; font-size: 14px;">
+                <li><strong>Pick a number</strong> from 1 to 6</li>
+                <li><strong>Click ROLL</strong> to roll the dice</li>
+                <li><strong>Win:</strong> Guess correctly and earn +10 points</li>
+                <li><strong>Lose:</strong> Guess wrong and lose -2 points</li>
+            </ul>
+            <p style="font-size: 13px; color: #ccc;">Track your score, wins, and losses as you play. Use RESET to start over!</p>
+        </div>
+    </div>
+    
+    <div class="dice" id="dice">1</div>
+    <p style="color: gold;">Pick a number:</p>
+    <div class="numbers">
+        <button onclick="pick(1)">1</button>
+        <button onclick="pick(2)">2</button>
+        <button onclick="pick(3)">3</button>
+        <button onclick="pick(4)">4</button>
+        <button onclick="pick(5)">5</button>
+        <button onclick="pick(6)">6</button>
+    </div>
+    <button class="btn roll-btn" onclick="rollDice()">ROLL</button>
+    <button class="btn reset-btn" onclick="resetGame()">RESET</button>
+    <div class="message" id="msg"></div>
+    <div class="stats">
+        <div class="stat-box">
+            <div class="stat-label">SCORE</div>
+            <div class="stat-num" id="score">0</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">WINS</div>
+            <div class="stat-num" id="wins">0</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">LOSSES</div>
+            <div class="stat-num" id="losses">0</div>
+        </div>
+    </div>
+</div>
+<script>
+var score = 0;
+var wins = 0;
+var losses = 0;
+var picked = 0;
+function toggleAbout() {
+    var aboutContent = document.getElementById('aboutContent');
+    aboutContent.classList.toggle('show');
+}
+function pick(num) {
+    picked = num;
+    var buttons = document.querySelectorAll('.numbers button');
+    for (var i = 0; i < buttons.length; i++) {
+        buttons[i].classList.remove('picked');
+    }
+    event.target.classList.add('picked');
+}
+function rollDice() {
+    if (picked == 0) {
+        document.getElementById('msg').textContent = "Pick a number first!";
+        document.getElementById('msg').className = "message lose";
+        return;
+    }
+    var diceElem = document.getElementById('dice');
+    diceElem.classList.add('rolling');
+    
+    setTimeout(function() {
+        var result = Math.floor(Math.random() * 6) + 1;
+        diceElem.textContent = result;
+        diceElem.classList.remove('rolling');
+        if (picked == result) {
+            score = score + 10;
+            wins = wins + 1;
+            document.getElementById('msg').textContent = "YOU WIN! +10 points";
+            document.getElementById('msg').className = "message win";
+        } else {
+            score = score - 2;
+            losses = losses + 1;
+            document.getElementById('msg').textContent = "YOU LOSE! -2 points (You picked " + picked + ")";
+            document.getElementById('msg').className = "message lose";
+        }
+        document.getElementById('score').textContent = score;
+        document.getElementById('wins').textContent = wins;
+        document.getElementById('losses').textContent = losses;
+        
+        picked = 0;
+        var buttons = document.querySelectorAll('.numbers button');
+        for (var i = 0; i < buttons.length; i++) {
+            buttons[i].classList.remove('picked');
+        }
+    }, 500);
+}
+function resetGame() {
+    score = 0;
+    wins = 0;
+    losses = 0;
+    picked = 0;
+    document.getElementById('dice').textContent = "1";
+    document.getElementById('msg').textContent = "";
+    document.getElementById('msg').className = "message";
+    document.getElementById('score').textContent = "0";
+    document.getElementById('wins').textContent = "0";
+    document.getElementById('losses').textContent = "0";
+    var buttons = document.querySelectorAll('.numbers button');
+    for (var i = 0; i < buttons.length; i++) {
+        buttons[i].classList.remove('picked');
+    }
+}
+</script>
+
+</body>
+</html>
